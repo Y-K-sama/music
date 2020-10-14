@@ -1,0 +1,183 @@
+body,
+h2,
+dl,
+dt,
+dd,
+ul {
+  margin: 0;
+}
+ul {
+  padding: 0;
+}
+li {
+  list-style: none;
+}
+body {
+  background-size: cover; // 用一张图片填充容器，短的一边与容器宽度相等
+}
+#wrap {
+  height: 100vh;
+  width: 100vw;
+  padding-top: 15vw;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.2);
+  // 歌曲图片
+  .songImg {
+    height: 70vw;
+    width: 70vw;
+    border-radius: 50%;
+    margin: 0 auto;
+    background: #000;
+    display: flex; //弹性盒模型
+    justify-content: center; //基于主轴居中排列
+    align-items: center; //基于交叉轴居中排列，与上一个配合使图片垂直和水平居中
+    img {
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+    }
+  }
+  // 歌曲信息
+  .songInfo {
+    color: #fff;
+    height: 20vh;
+    margin-top: 6vw;
+    text-align: center;
+    h2 {
+      font-size: 24px;
+      font-weight: normal;
+      margin-bottom: 3vw;
+    }
+    div {
+      font-size: 14px;
+    }
+  }
+  // 进度条
+  .progress {
+    height: 8vw;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #fff;
+    line-height: 8vh;
+    .curTime,
+    .totalTime {
+      padding: 0 4vw;
+    }
+    .drag {
+      flex: 1 1 auto; // 沾满剩余空间
+      height: 8vw;
+      position: relative;
+      .dot {
+        height: 2vw;
+        width: 2vw;
+        background: #fff;
+        border-radius: 50%;
+        border: 2vw solid rgba(0, 0, 0, 0);
+        background-clip: padding-box; //背景颜色从padding内侧开始渲染
+        // 使圆点圆心位于盒模型的左侧垂直居中位置
+        position: absolute;
+        left: -3vw;
+        top: 50%;
+        margin-top: -3vw;
+        z-index: 3;
+      }
+      // 进度背景
+      .frontBg,
+      .backBg {
+        background: #fff;
+        height: 0.6vw;
+        position: absolute;
+        top: 50%;
+        margin-top: -0.3vw;
+        left: 0;
+        z-index: 2;
+      }
+      .backBg {
+        background: rgba(0, 0, 0, 0.2);
+        width: 100%;
+        z-index: 1;
+      }
+    }
+  }
+  // 底部菜单
+  .control {
+    position: fixed;
+    bottom: 0;
+    height: 16vw;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    li {
+      width: 20%;
+      height: 100%;
+    }
+    li:nth-child(1) {
+      background: url(../images/icon-like.png) no-repeat center/30%;
+      &.active {
+        background: url(../images/icon-like-solid.png) no-repeat center/30%;
+      }
+    }
+    li:nth-child(2) {
+      background: url(../images/icon-prev.png) no-repeat center/30%;
+    }
+    li:nth-child(3) {
+      background: url(../images/icon-play.png) no-repeat center/30%;
+      &.active {
+        background: url(../images/icon-pause.png) no-repeat center/30%;
+      }
+    }
+    li:nth-child(4) {
+      background: url(../images/icon-next.png) no-repeat center/30%;
+    }
+    li:nth-child(5) {
+      background: url(../images/icon-playlist.png) no-repeat center/30%;
+    }
+  }
+  // 弹出列表
+  .list {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    height: 60vh;
+    background-image: linear-gradient(rgb(5, 5, 5), rgba(170, 170, 170, 0.95));
+    z-index: 4;
+    dt,
+    dd,
+    .close {
+      color: #fff;
+      height: 12vw;
+      line-height: 12vw;
+      font-size: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    dt {
+      text-align: center;
+    }
+    dd {
+      padding-left: 3vw;
+      &.active {
+        color: #56b287;
+      }
+    }
+    .close {
+      border-bottom: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: absolute;
+      bottom: 0;
+      width: 100vw;
+      text-align: center;
+    }
+    .closeImg {
+      height: 12vw;
+      width: 12vw;
+      position: absolute;
+      z-index: 5;
+      background: url(../images/icon-close.png) no-repeat center/35%;
+      top: 0;
+      right: 0;
+    }
+  }
+}
