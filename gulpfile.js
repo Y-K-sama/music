@@ -38,6 +38,7 @@ const less = require('gulp-less'); // 将less代码转换类css代码
 const cleanCss = require('gulp-clean-css'); //将css文件压缩
 const uglify = require('gulp-uglify'); // 压缩js代码
 const imgMin = require('gulp-imagemin');
+const stripDebug = require('gulp-strip-debug');
 const connect = require('gulp-connect'); //设置服务器
 const folder = {
     src: 'src/',
@@ -59,7 +60,8 @@ function css() {
 }
 function js() {
     return src(folder.src + 'js/*')
-        .pipe(uglify())
+        // .pipe(stripDebug())
+        // .pipe(uglify())
         .pipe(dest(folder.dist + 'js/'))
         .pipe(connect.reload());
 }
