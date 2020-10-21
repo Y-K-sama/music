@@ -1,7 +1,7 @@
 ; (function (player, $) {
     class MusicPlayer {
         constructor(dom) {
-            this.num = 0; // 歌曲的序号
+            this.indexObj = null;
             this.wrap = dom; // 播放器容器用于加载listControl模块
             this.dataList = [];
             this.rotateTimer = null;
@@ -22,9 +22,11 @@
                 url: url,
                 type: 'get',
                 success: data => {
+                    this.indexObj = new player.controlIndex(data.length);
                     this.dataList = data;
-                    this.loadMusic();
                     this.musicControl();// 添加音乐操作功能
+                    this.listPlay();
+                    this.loadMusic();
                 },
                 error: () => {
                     console.log('数据请求失败')
@@ -33,8 +35,8 @@
         }
         // 加载音乐
         loadMusic() {
-            player.render(this.dataList[this.num]); // 渲染页面内容
-            player.music.load(this.dataList[this.num].audioSrc);
+            player.render(this.dataList[this.indexObj.index]); // 渲染页面内容
+            player.music.load(this.dataList[this.indexObj.index].audioSrc);
             // 播放音乐
             if (player.music.status == 'play') {
                 player.music.play();
@@ -51,21 +53,21 @@
         musicControl() {
             // 添加手指摁下事件 上一首
             this.controlBtn[1].addEventListener('touchend', () => {
-                if (this.num == 0) {
-                    this.num = this.dataList.length
-                }
-                this.num--;
+                // 获取上一个索引
+                this.indexObj.prve();
                 // 切换音乐后将音乐状态改为play
                 player.music.status = 'play';
-                this.loadMusic()
+                this.loadMusic();
+                this.list.nowMusic(this.indexObj.index);
             });
             // 下一首
             this.controlBtn[3].addEventListener('touchend', () => {
-                // 判断上一首歌是哪一首第一首的上一首是最后一首
-                this.num = (this.num + 1) % this.dataList.length;
+                // 获取下一个索引
+                this.indexObj.next();
                 // 切换音乐后将音乐状态改为play
                 player.music.status = 'play';
-                this.loadMusic()
+                this.loadMusic();
+                this.list.nowMusic(this.indexObj.index);
             });
             // 暂停播放
             this.controlBtn[2].addEventListener('touchend', () => {
@@ -81,7 +83,8 @@
                     const deg = this.record.dataset.rotate || 0;
                     this.imageRotate(deg);
                 }
-            })
+            });
+            
         }
         // 旋转唱片图片
         imageRotate(deg) {
@@ -93,11 +96,38 @@
             }, 1000 / 60) //事件适配屏幕刷新率60hz
         }
         // 暂停旋转
-        imageStop(){
+        imageStop() {
             clearInterval(this.rotateTimer)
         }
+        // 列表切歌
+        listPlay(){
+            this.list = player.listControl(this.dataList, this.wrap);
+            // 列表按钮添加触屏事件
+            this.controlBtn[4].addEventListener('touchend',()=>{
+                this.list.popIn();
+            })
+            // 给每个音乐添加触摸事件
+            this.list.musicList.forEach((item,index) => {
+                item.addEventListener('touchend',()=>{
+                    if(index === this.indexObj.index) {
+                        // 当点击正在播放的音乐时
+                        if(player.music.status === 'play'){
+                            return;
+                        }
+                        const event = new Event('touchend');
+                        this.controlBtn[2].dispatchEvent(event);
+                        this.list.popUp();
+                        return
+                    }
+                    this.indexObj.index = index;
+                    player.music.status = 'play';
+                    this.loadMusic();
+                    this.list.popUp();
+                })
+            });
+        }
     }
-    const wrap = document.querySelector('.wrap');
+    const wrap = document.querySelector('#wrap');
     const music = new MusicPlayer(wrap);
     music.init();
 })(window.player, window.Zepto)
