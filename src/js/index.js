@@ -1,10 +1,11 @@
 ; (function (player, $) {
     class MusicPlayer {
         constructor(dom) {
-            this.indexObj = null;
+            this.indexObj = null; // 序号对象
             this.wrap = dom; // 播放器容器用于加载listControl模块
-            this.dataList = [];
-            this.rotateTimer = null;
+            this.dataList = []; // 储存请求到的数据
+            this.rotateTimer = null; // 图片旋转定时器
+            this.progress = player.progress.pro(); // 进度条对象
         }
         // 初始化
         init() {
@@ -27,6 +28,7 @@
                     this.musicControl();// 添加音乐操作功能
                     this.listPlay();
                     this.loadMusic();
+                    
                 },
                 error: () => {
                     console.log('数据请求失败')
@@ -37,16 +39,26 @@
         loadMusic() {
             player.render(this.dataList[this.indexObj.index]); // 渲染页面内容
             player.music.load(this.dataList[this.indexObj.index].audioSrc);
+            
+            this.progress.renderAllTime(this.dataList[this.indexObj.index].duration);
+
             // 播放音乐
             if (player.music.status == 'play') {
                 player.music.play();
                 // this.controlBtn[2].touchend();
                 this.controlBtn[2].className = 'active';
                 // 刚加载好的歌曲从0开始旋转
-                this.imageRotate(0)
-
+                this.imageRotate(0);
+                this.progress.move(0);
             } else {
                 this.controlBtn[2].className = '';
+            }
+            // 在此处运行拖拽,每次切歌后要重新建立一个拖拽对象
+            this.dragProgress();
+            // 进度条结束后的回调函数
+            this.progress.endAfter = () => {
+                this.indexObj.index = ++this.indexObj.index %  this.dataList.length;
+                this.loadMusic();
             }
         }
         // 控制音乐
@@ -76,12 +88,14 @@
                     this.controlBtn[2].className = '';
                     // 停止旋转图片
                     this.imageStop();
+                    this.progress.stop();
                 } else {
                     player.music.play();
                     this.controlBtn[2].className = 'active';
                     // 先获取图片之前旋转的角度，再旋转图片
                     const deg = this.record.dataset.rotate || 0;
                     this.imageRotate(deg);
+                    this.progress.move();
                 }
             });
             
@@ -125,6 +139,31 @@
                     this.list.popUp();
                 })
             });
+        }
+        // 拖拽
+        dragProgress(){
+            const circle = new player.progress.drag(document.querySelector('.dot'));
+            circle.init();
+            circle.start = ()=>{
+                // 按下的时候
+                // 防止在歌曲播放时拖动,清除定时器
+                cancelAnimationFrame(this.progress.frameId);
+            }
+            circle.move = (per)=>{
+                // 拖拽的时候
+                this.progress.update(per)
+                this.dragTime = this.dataList[this.indexObj.index].duration * per;
+                this.per = per;
+            }
+            circle.end = ()=>{
+                // 抬起的时候
+                player.music.playTo(this.dragTime);
+                this.controlBtn[2].className = 'active';
+                const deg = this.record.dataset.rotate || 0;
+                this.imageRotate(deg);
+                // 按下时将定时器清除,重新让进度条移动
+                this.progress.move(this.per)
+            }
         }
     }
     const wrap = document.querySelector('#wrap');

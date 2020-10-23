@@ -25,6 +25,8 @@
         // 跳到音乐的某个时间点
         playTo(time){
             this.audio.currentTime = time; //单位为秒
+            this.audio.play();
+            this.status = 'play';
         }
     }
     root.music = new AudioManage();
